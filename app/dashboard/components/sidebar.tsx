@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutGrid, Image, FileText, Code2, Boxes, CreditCard, Settings, LogOut } from "lucide-react"
+import LoginButton from "@/components/LoginLogoutButton"
 
 const navigation = [
   { name: "Home", href: "/dashboard", icon: LayoutGrid },
@@ -48,10 +49,7 @@ export function Sidebar() {
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">S</div>
           <div className="ml-3">
             <p className="text-sm font-medium">User</p>
-            <button className="flex items-center text-sm text-muted-foreground hover:text-primary">
-              <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </button>
+            <LoginButton/>
           </div>
         </div>
       </div>
