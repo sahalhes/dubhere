@@ -2,48 +2,63 @@
 
 import { useState } from "react"
 import { ArrowRight, Upload } from "lucide-react"
+import { useProcessingStatus } from "@/hooks/use-processing-status"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { LoadingSpinner } from "@/components/loading-spinner"
+import { Progress } from "@/components/ui/progress"
 
 export default function DubPage() {
   const [loading, setLoading] = useState(false)
-  const [videoUrl, setVideoUrl] = useState("")
-  const [selectedLanguage, setSelectedLanguage] = useState("")
-  const [processingStatus, setProcessingStatus] = useState<"idle" | "processing" | "completed" | "error">("idle")
+  const [videoUrl, setVideoUrl] = useState<string>("")
+const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
+const [currentJobId, setCurrentJobId] = useState<string | null>(null)
+  const job = useProcessingStatus(currentJobId)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // TODO: Implement file upload logic
-    // 1. Upload to storage
-    // 2. Get the URL
-    // 3. Set the video URL
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload-video", {
+        method: "POST",
+        body: formData,
+      })
+
+      const { url } = await response.json()
+      setVideoUrl(url)
+    } catch (error) {
+      console.error("Error uploading file:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!videoUrl || !selectedLanguage) return
 
-    setProcessingStatus("processing")
+    setLoading(true)
     try {
-      // TODO: Implement video processing
-      // 1. Call ElevenLabs API
-      // const response = await fetch('/api/process-video', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ videoUrl, language: selectedLanguage }),
-      // })
-      // 2. Handle the response
-      // 3. Update processing status
-      setProcessingStatus("completed")
+      const response = await fetch("/api/process-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoUrl, language: selectedLanguage }),
+      })
+
+      const { jobId } = await response.json()
+      setCurrentJobId(jobId)
     } catch (error) {
       console.error("Error:", error)
-      setProcessingStatus("error")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -63,8 +78,17 @@ export default function DubPage() {
               <div className="flex h-[200px] w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 hover:border-primary">
                 <label htmlFor="file-upload" className="flex cursor-pointer flex-col items-center gap-2">
                   <Upload className="h-8 w-8 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Drag & drop or click to upload</span>
-                  <input id="file-upload" type="file" className="hidden" accept="video/*" onChange={handleFileUpload} />
+                  <span className="text-sm text-muted-foreground">
+                    {loading ? "Uploading..." : "Drag & drop or click to upload"}
+                  </span>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    className="hidden"
+                    accept="video/*"
+                    onChange={handleFileUpload}
+                    disabled={loading}
+                  />
                 </label>
               </div>
             </div>
@@ -111,30 +135,41 @@ export default function DubPage() {
         </Card>
       </div>
 
-      {processingStatus !== "idle" && (
+      {job && (
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Processing Status</CardTitle>
           </CardHeader>
           <CardContent>
-            {processingStatus === "processing" && (
-              <div className="flex items-center gap-4">
-                <LoadingSpinner />
-                <div>
-                  <p className="font-medium">Processing your video</p>
-                  <p className="text-sm text-muted-foreground">This may take a few minutes...</p>
+            <div className="space-y-4">
+              {job.steps.map((step, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{step.step}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {step.status === "completed" ? "100%" : `${step.progress}%`}
+                    </span>
+                  </div>
+                  <Progress value={step.status === "completed" ? 100 : step.progress} className="h-2" />
                 </div>
-              </div>
-            )}
-            {processingStatus === "completed" && (
-              <div className="text-center">
-                <p className="mb-4 font-medium text-green-600">Processing complete!</p>
-                <Button>Download Dubbed Video</Button>
-              </div>
-            )}
-            {processingStatus === "error" && (
-              <div className="text-center text-red-600">An error occurred. Please try again.</div>
-            )}
+              ))}
+
+              {job.status === "completed" && job.outputUrl && (
+                <div className="mt-6 text-center">
+                  <Button asChild>
+                    <a href={job.outputUrl} download>
+                      Download Dubbed Video
+                    </a>
+                  </Button>
+                </div>
+              )}
+
+              {job.status === "error" && (
+                <div className="mt-4 text-center text-red-600">
+                  {job.error || "An error occurred during processing"}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
