@@ -4,14 +4,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutGrid, Image, FileText, Code2, Boxes, CreditCard, Settings, LogOut } from "lucide-react"
+import LoginButton from "@/components/LoginLogoutButton"
 
 const navigation = [
   { name: "Home", href: "/dashboard", icon: LayoutGrid },
-  { name: "Image Generation", href: "/dashboard/image-generation", icon: Image },
-  { name: "Text Analysis", href: "/dashboard/text-analysis", icon: FileText },
-  { name: "Code Assistant", href: "/dashboard/code-assistant", icon: Code2 },
-  { name: "AI Models", href: "/dashboard/models", icon: Boxes },
-  { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
+  { name: "Dub", href: "/dashboard/dub", icon: FileText },
+  //{ name: "Assistant", href: "/dashboard/assistant", icon: Code2 },
+  { name: "Credits", href: "/dashboard/credits", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
@@ -21,7 +20,7 @@ export function Sidebar() {
   return (
     <div className="flex flex-col w-64 border-r bg-background">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold">Next JS AI Tool</h1>
+        <h1 className="text-xl font-bold">DubHere</h1>
       </div>
       <div className="flex-1 py-4">
         <nav className="space-y-1 px-2">
@@ -48,10 +47,7 @@ export function Sidebar() {
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">S</div>
           <div className="ml-3">
             <p className="text-sm font-medium">User</p>
-            <button className="flex items-center text-sm text-muted-foreground hover:text-primary">
-              <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </button>
+            <LoginButton/>
           </div>
         </div>
       </div>
