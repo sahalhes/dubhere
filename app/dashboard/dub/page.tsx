@@ -14,8 +14,8 @@ import { Progress } from "@/components/ui/progress"
 export default function DubPage() {
   const [loading, setLoading] = useState(false)
   const [videoUrl, setVideoUrl] = useState<string>("")
-const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
-const [currentJobId, setCurrentJobId] = useState<string | null>(null)
+  const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null)
   const job = useProcessingStatus(currentJobId)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
