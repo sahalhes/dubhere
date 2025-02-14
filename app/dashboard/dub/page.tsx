@@ -1,70 +1,81 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowRight, Upload } from "lucide-react"
-import { useProcessingStatus } from "@/hooks/use-processing-status"
+import { useState } from "react";
+import { ArrowRight, Upload, Download } from "lucide-react";
+import { useProcessingStatus } from "@/hooks/use-processing-status";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast"; // Toast notification for alerts
 
 export default function DubPage() {
-  const [loading, setLoading] = useState(false)
-  const [videoFile, setVideoFile] = useState<File | null>(null)
-  const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const job = useProcessingStatus(currentJobId)
+  const [loading, setLoading] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null); // Store final video URL
+  const job = useProcessingStatus(currentJobId);
+  const { toast } = useToast();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setVideoFile(file)
-  }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setVideoFile(file);
+  };
 
   const handleProcessVideo = async () => {
     if (!videoFile || !selectedLanguage) {
-      setError("Please upload a video and select a language.")
-      return
+      setError("Please upload a video and select a language.");
+      return;
     }
-
-    setLoading(true)
-    setError(null)
-
+  
+    setLoading(true);
+    setError(null);
+    setVideoUrl(null); // Clear previous processed video
+  
     try {
-      const formData = new FormData()
-      formData.append("file", videoFile)
-      formData.append("language", selectedLanguage)
-
+      const formData = new FormData();
+      formData.append("file", videoFile);
+      formData.append("language", selectedLanguage);
+  
       const response = await fetch("/api/process_video", {
         method: "POST",
         body: formData,
-      })
-
-      const text = await response.text() // Debugging step
-      console.log("Raw API Response:", text) // Logs the actual response
-
-      try {
-        const data = JSON.parse(text) // Parse JSON
-        if (data.error) throw new Error(data.error)
-        setCurrentJobId(data.jobId)
-      } catch (jsonError) {
-        throw new Error("Invalid JSON response from API.")
+      });
+  
+      const text = await response.text();
+      console.log("Raw API Response:", text);
+  
+      const data = JSON.parse(text);
+      if (data.error) throw new Error(data.error);
+  
+      setCurrentJobId(data.jobId);
+      if (data.videoUrl) {
+        setVideoUrl(data.videoUrl); // Set new download link
       }
     } catch (error) {
-      console.error("Error processing video:", error)
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError("An unknown error occurred.")
-      }
+      console.error("Error processing video:", error);
+      setError(error instanceof Error ? error.message : "An unknown error occurred.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+  
+
+  const handleDownload = () => {
+    
+    if (!videoUrl) {
+      toast({
+        title: "Processing...",
+        description: "Your video is still being processed. Please wait.",
+      });
+    }
+  };
 
   return (
     <div className="container py-6">
@@ -118,7 +129,7 @@ export default function DubPage() {
                     <SelectItem value="French">French</SelectItem>
                     <SelectItem value="German">German</SelectItem>
                     <SelectItem value="Italian">Italian</SelectItem>
-                    <SelectItem value="Hindu">Hindi</SelectItem>
+                    <SelectItem value="Hindi">Hindi</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -130,51 +141,15 @@ export default function DubPage() {
         </Card>
       </div>
 
-      {error && (
-        <div className="mt-4 text-center text-red-600">
-          {error}
-        </div>
-      )}
-
-      {job && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Processing Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {job.steps.map((step, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{step.step}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {step.status === "completed" ? "100%" : `${step.progress}%`}
-                    </span>
-                  </div>
-                  <Progress value={step.status === "completed" ? 100 : step.progress} className="h-2" />
-                </div>
-              ))}
-
-              {job.status === "completed" && job.outputUrl && (
-                <div className="mt-6 text-center">
-                  <Button asChild>
-                    <a href={job.outputUrl} target="_blank" rel="noopener noreferrer">
-                      Download Dubbed Video
-                    </a>
-                  </Button>
-                </div>
-              )}
-
-
-              {job.status === "error" && (
-                <div className="mt-4 text-center text-red-600">
-                  {job.error || "An error occurred during processing"}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      {videoUrl && (
+      <div className="mt-6 flex flex-col items-center">
+        <h2 className="mb-2 text-xl font-semibold">Dubbed Video Preview</h2>
+        <video controls className="w-full max-w-2xl rounded-lg shadow-lg">
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
       )}
     </div>
-  )
+  );
 }
