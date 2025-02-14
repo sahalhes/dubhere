@@ -18,19 +18,43 @@ export async function POST(req: Request) {
     console.log("Uploading file:", file.name);
     console.log("Target Language:", language);
 
-    // Connect to Gradio client
-    const client = await Client.connect("artificialguybr/video-dubbing");
-    console.log("Connected to Gradio API");
+    let client;
+    let result;
 
-    // Make prediction
-    const result = await client.predict(
-      "/process_video",
-      {
+    // Try first endpoint
+    try {
+      console.log("Trying Gradio Client: https://a19da33fef295fb742.gradio.live/");
+      client = await Client.connect("https://a19da33fef295fb742.gradio.live/");
+      result = await client.predict("/process_video", {
         video: { video: blob, subtitles: null },
         target_language: language,
         use_wav2lip: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.warn("First endpoint failed:", error.message);
+      } else {
+        console.warn("First endpoint failed:", error);
       }
-    );
+
+      // Try second endpoint
+      try {
+        console.log("Falling back to Gradio Client: artificialguybr/video-dubbing");
+        client = await Client.connect("artificialguybr/video-dubbing");
+        result = await client.predict("/process_video", {
+          video: { video: blob, subtitles: null },
+          target_language: language,
+          use_wav2lip: false,
+        });
+      } catch (fallbackError) {
+        if (fallbackError instanceof Error) {
+          console.error("Both endpoints failed:", fallbackError.message);
+        } else {
+          console.error("Both endpoints failed:", fallbackError);
+        }
+        return NextResponse.json({ error: "Failed to process video from both sources" }, { status: 500 });
+      }
+    }
 
     if (!result) {
       throw new Error("No response from video processing service");
@@ -41,7 +65,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       jobId: Date.now().toString(),
-      videoUrl, // Add this field for the frontend
+      videoUrl,
     });
 
   } catch (error) {

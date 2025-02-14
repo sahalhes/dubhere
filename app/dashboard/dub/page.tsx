@@ -60,7 +60,7 @@ export default function DubPage() {
       }
     } catch (error) {
       console.error("Error processing video:", error);
-      setError(error instanceof Error ? error.message : "An unknown error occurred.");
+      setError(error instanceof Error ? error.message : "GPU quota over , please try in an hour :(");
     } finally {
       setLoading(false);
     }
@@ -144,7 +144,7 @@ export default function DubPage() {
       {videoUrl && (
       <div className="mt-6 flex flex-col items-center">
         <h2 className="mb-2 text-xl font-semibold">Dubbed Video Preview</h2>
-        <video controls className="w-full max-w-2xl rounded-lg shadow-lg">
+        <video controls className="w-20px h-20px rounded-lg shadow-lg">
           <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
