@@ -3,8 +3,6 @@ import Link from 'next/link';
 
 import { siteConfig } from '@/config/site';
 import { RootLayoutProps } from '@/types';
-import MobileDrawer from './mobile-drawer';
-import Sidebar from './sidebar';
 
 export default async function NavigationShell({ children }: RootLayoutProps) {
   return (
@@ -18,13 +16,11 @@ export default async function NavigationShell({ children }: RootLayoutProps) {
             </Link>
           </div>
           <div className="flex-1">
-            <Sidebar />
           </div>
         </div>
       </div>
       <aside className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 md:hidden lg:h-[60px] lg:px-6">
-          <MobileDrawer />
         </header>
         <main className="flex flex-1 flex-col">{children}</main>
       </aside>

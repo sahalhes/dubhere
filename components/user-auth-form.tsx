@@ -29,7 +29,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         variant="outline"
         onClick={() => {
           signIn('google', {
-            callbackUrl: PATHS.HOME,
+            callbackUrl: PATHS.home,
           });
         }}
         type="button">
@@ -40,7 +40,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         variant="secondary"
         onClick={() => {
           signIn('github', {
-            callbackUrl: PATHS.HOME,
+            callbackUrl: PATHS.home,
           });
         }}
         type="button">

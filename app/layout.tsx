@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"] });
-export const atkinson = Inter({
+const atkinson = Inter({
   subsets: ['latin'],
   weight: ['400', '700'], // Adjust weights as needed
   variable: '--font-atkinson',
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn("bg-background", inter.className )}>{children}</body>
+      <body className={cn("bg-background", inter.className,atkinson.variable )}>{children}</body>
     </html>
   );
 }

@@ -30,7 +30,7 @@ export default function MagicLinkForm() {
     setIsLoading(true);
     signIn('email', {
       email: values.email,
-      callbackUrl: PATHS.HOME,
+      callbackUrl: PATHS.home,
     });
     setTimeout(() => {
       setIsLoading(false);
