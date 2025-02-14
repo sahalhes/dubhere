@@ -11,6 +11,7 @@ const navigation = [
   { name: "Dub", href: "/dashboard/dub", icon: FileText },
   //{ name: "Assistant", href: "/dashboard/assistant", icon: Code2 },
   { name: "Credits", href: "/dashboard/credits", icon: CreditCard },
+  { name: "Incoming 🔥", href: "/dashboard/future", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 

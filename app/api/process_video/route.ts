@@ -23,8 +23,8 @@ export async function POST(req: Request) {
 
     // Try first endpoint
     try {
-      console.log("Trying Gradio Client: https://a19da33fef295fb742.gradio.live/");
-      client = await Client.connect("https://a19da33fef295fb742.gradio.live/");
+      console.log("Trying Gradio Client: https://gradio.live/");
+      client = await Client.connect("https://f965dc0225823bedf5.gradio.live/");
       result = await client.predict("/process_video", {
         video: { video: blob, subtitles: null },
         target_language: language,
