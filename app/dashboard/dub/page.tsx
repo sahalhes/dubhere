@@ -144,7 +144,7 @@ export default function DubPage() {
       {videoUrl && (
       <div className="mt-6 flex flex-col items-center">
         <h2 className="mb-2 text-xl font-semibold">Dubbed Video Preview</h2>
-        <video controls className="w-20px h-20px rounded-lg shadow-lg">
+        <video controls className="w-300px h-auto rounded-lg shadow-lg">
           <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
