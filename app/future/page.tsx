@@ -22,7 +22,7 @@ export default function Future() {
     There are a lot of things to work on like:
   </p>
   <ul className="list-disc list-inside text-muted-foreground text-lg inline-block text-left">
-    <li>Removing limit of 1 minute (i dont want to broke rn so yeah)</li>
+    <li>Removing limit of 1 minute (i have no plan to go broke rn so yeah)</li>
     <li>GPUs</li>
     <li>Backend infrastructure as a whole</li>
     <li>Credit system</li>
