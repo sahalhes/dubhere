@@ -8,23 +8,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const subscriptionPlans = [
-  {
-    name: "Starter",
-    price: "9",
-    description: "Perfect for getting started with AI dubbing",
-    features: ["100 minutes of dubbing", "720p video quality", "Basic support"],
-  },
+  // {
+  //   name: "Starter",
+  //   price: "9",
+  //   description: "Perfect for getting started with AI dubbing",
+  //   features: ["100 minutes of dubbing", "720p video quality", "Basic support"],
+  // },
   {
     name: "Pro",
-    price: "29",
+    price: "9",
     description: "Best for professionals and content creators",
-    features: ["500 minutes of dubbing", "1080p video quality", "Priority support", "Custom voices"],
+    features: ["1080p video quality", "Priority support", "Custom voices"],
   },
   {
     name: "Enterprise",
     price: "99",
     description: "For teams and high-volume needs",
-    features: ["2000 minutes of dubbing", "4K video quality", "24/7 support", "Custom voices", "API access"],
+    features: ["4K video quality", "24/7 support", "Custom voices", "API access"],
   },
 ]
 
