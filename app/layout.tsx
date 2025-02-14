@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils"
+
 const inter = Inter({ subsets: ["latin"] });
+export const atkinson = Inter({
+  subsets: ['latin'],
+  weight: ['400', '700'], // Adjust weights as needed
+  variable: '--font-atkinson',
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",

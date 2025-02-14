@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutGrid, Image, FileText, Code2, Boxes, CreditCard, Settings, LogOut } from "lucide-react"
+import { LayoutGrid, Image, FileText, Code2, Boxes, CreditCard, Settings, LogOut, Milestone } from "lucide-react"
 import LoginButton from "@/components/LoginLogoutButton"
 
 const navigation = [
@@ -11,7 +11,7 @@ const navigation = [
   { name: "Dub", href: "/dashboard/dub", icon: FileText },
   //{ name: "Assistant", href: "/dashboard/assistant", icon: Code2 },
   { name: "Credits", href: "/dashboard/credits", icon: CreditCard },
-  { name: "Incoming 🔥", href: "/dashboard/future", icon: CreditCard },
+  { name: "Incoming 🔥", href: "/dashboard/future", icon: Milestone },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 

@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import React from "react";
 
 const features = [
@@ -60,6 +62,7 @@ export default function FeaturesPage() {
           🚀 Dub videos with <strong>no hidden costs</strong>  :)
         </p>
       </div>
+      <Button className="mt-6"><Link href='/future' target="_blank">Know more</Link> </Button>
     </div>
   );
 }

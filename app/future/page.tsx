@@ -18,7 +18,7 @@ export default function Future() {
       <div className="text-center max-w-3xl">
         <h1 className="text-3xl font-bold mb-4">Still work to do</h1>
         <div className="text-center">
-  <p className="text-muted-foreground mb-4 text-lg">
+  <p className="text-muted-foreground mb-4 text-lg opacity-80">
     There are a lot of things to work on like:
   </p>
   <ul className="list-disc list-inside text-muted-foreground text-lg inline-block text-left">
@@ -29,7 +29,7 @@ export default function Future() {
     <li>Better hosting</li>
     <li>and many more...</li>
   </ul>
-  <p className="text-sm opacity-50 mt-4">
+  <p className="text-m opacity-75 mt-4">
     Feel free to use, improvements are coming soon ⏰
   </p>
 </div>
