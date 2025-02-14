@@ -13,50 +13,54 @@ import { Progress } from "@/components/ui/progress"
 
 export default function DubPage() {
   const [loading, setLoading] = useState(false)
-  const [videoUrl, setVideoUrl] = useState<string>("")
+  const [videoFile, setVideoFile] = useState<File | null>(null)
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined)
   const [currentJobId, setCurrentJobId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const job = useProcessingStatus(currentJobId)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setVideoFile(file)
+  }
+
+  const handleProcessVideo = async () => {
+    if (!videoFile || !selectedLanguage) {
+      setError("Please upload a video and select a language.")
+      return
+    }
 
     setLoading(true)
+    setError(null)
+
     try {
       const formData = new FormData()
-      formData.append("file", file)
+      formData.append("file", videoFile)
+      formData.append("language", selectedLanguage)
 
-      const response = await fetch("/api/upload-video", {
+      const response = await fetch("/api/process_video", {
         method: "POST",
         body: formData,
       })
 
-      const { url } = await response.json()
-      setVideoUrl(url)
+      const text = await response.text() // Debugging step
+      console.log("Raw API Response:", text) // Logs the actual response
+
+      try {
+        const data = JSON.parse(text) // Parse JSON
+        if (data.error) throw new Error(data.error)
+        setCurrentJobId(data.jobId)
+      } catch (jsonError) {
+        throw new Error("Invalid JSON response from API.")
+      }
     } catch (error) {
-      console.error("Error uploading file:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleUrlSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!videoUrl || !selectedLanguage) return
-
-    setLoading(true)
-    try {
-      const response = await fetch("/api/process-video", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoUrl, language: selectedLanguage }),
-      })
-
-      const { jobId } = await response.json()
-      setCurrentJobId(jobId)
-    } catch (error) {
-      console.error("Error:", error)
+      console.error("Error processing video:", error)
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError("An unknown error occurred.")
+      }
     } finally {
       setLoading(false)
     }
@@ -79,7 +83,7 @@ export default function DubPage() {
                 <label htmlFor="file-upload" className="flex cursor-pointer flex-col items-center gap-2">
                   <Upload className="h-8 w-8 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    {loading ? "Uploading..." : "Drag & drop or click to upload"}
+                    {videoFile ? videoFile.name : "Drag & drop or click to upload"}
                   </span>
                   <input
                     id="file-upload"
@@ -95,23 +99,13 @@ export default function DubPage() {
           </CardContent>
         </Card>
 
-        {/* Video URL Card */}
+        {/* Language Selection */}
         <Card>
           <CardHeader>
-            <CardTitle>Video URL</CardTitle>
-            <CardDescription>Enter a URL from YouTube, Instagram, or other platforms</CardDescription>
+            <CardTitle>Select Target Language</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUrlSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="video-url">Video URL</Label>
-                <Input
-                  id="video-url"
-                  placeholder="https://..."
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                />
-              </div>
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="language">Target Language</Label>
                 <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
@@ -119,21 +113,28 @@ export default function DubPage() {
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Spanish</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                    <SelectItem value="de">German</SelectItem>
-                    <SelectItem value="it">Italian</SelectItem>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                    <SelectItem value="Italian">Italian</SelectItem>
+                    <SelectItem value="Hindu">Hindi</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full" disabled={!videoUrl || !selectedLanguage || loading}>
+              <Button onClick={handleProcessVideo} className="w-full" disabled={!videoFile || !selectedLanguage || loading}>
                 Process Video <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </form>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {error && (
+        <div className="mt-4 text-center text-red-600">
+          {error}
+        </div>
+      )}
 
       {job && (
         <Card className="mt-6">
@@ -157,12 +158,13 @@ export default function DubPage() {
               {job.status === "completed" && job.outputUrl && (
                 <div className="mt-6 text-center">
                   <Button asChild>
-                    <a href={job.outputUrl} download>
+                    <a href={job.outputUrl} target="_blank" rel="noopener noreferrer">
                       Download Dubbed Video
                     </a>
                   </Button>
                 </div>
               )}
+
 
               {job.status === "error" && (
                 <div className="mt-4 text-center text-red-600">
@@ -176,4 +178,3 @@ export default function DubPage() {
     </div>
   )
 }
-
