@@ -57,10 +57,14 @@ export async function POST(req: Request) {
     }
 
     if (!result) {
-      throw new Error("No response from video processing service");
+      return NextResponse.json({ error: "No response from video processing service" }, { status: 500 });
     }
 
     const videoUrl = (result.data as { video: { url: string } }[])[0]?.video?.url;
+
+    if (!videoUrl) {
+      return NextResponse.json({ error: "No video URL in response" }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
@@ -69,7 +73,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("API Error:", error);
-    return NextResponse.json({ error: "Failed to process video" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to process video", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
 

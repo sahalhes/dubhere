@@ -51,7 +51,18 @@ export default function DubPage() {
       const text = await response.text();
       console.log("Raw API Response:", text);
   
-      const data = JSON.parse(text);
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+  
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+  
       if (data.error) throw new Error(data.error);
   
       setCurrentJobId(data.jobId);
@@ -60,7 +71,7 @@ export default function DubPage() {
       }
     } catch (error) {
       console.error("Error processing video:", error);
-      setError(error instanceof Error ? error.message : "GPU quota over , please try in an hour :(");
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
