@@ -21,7 +21,6 @@ export async function POST(req: Request) {
     let client;
     let result;
 
-    // Try first endpoint (artificialguybr/video-dubbing)
     try {
       console.log("Trying Gradio Client: artificialguybr/video-dubbing");
       client = await Client.connect("artificialguybr/video-dubbing");
@@ -30,34 +29,37 @@ export async function POST(req: Request) {
         target_language: language,
         use_wav2lip: false,
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.warn("First endpoint failed:", error.message);
-      } else {
-        console.warn("First endpoint failed:", error);
+
+      console.log("Raw result from Gradio:", JSON.stringify(result));
+
+      if (!result) {
+        throw new Error("No response from video processing service");
       }
 
-      // Try second endpoint (Google Colab Gradio)
+      const videoUrl = (result.data as { video: { url: string } }[])[0]?.video?.url;
+
+      if (!videoUrl) {
+        throw new Error("No video URL in response");
+      }
+
+      return NextResponse.json({
+        success: true,
+        jobId: Date.now().toString(),
+        videoUrl,
+      });
+    } catch (error) {
+      console.error("Error in video processing:", error);
+      return NextResponse.json({ 
+        error: "Failed to process video", 
+        details: error instanceof Error ? error.message : String(error) 
+      }, { status: 500 });
     }
-
-    if (!result) {
-      return NextResponse.json({ error: "No response from video processing service" }, { status: 500 });
-    }
-
-    const videoUrl = (result.data as { video: { url: string } }[])[0]?.video?.url;
-
-    if (!videoUrl) {
-      return NextResponse.json({ error: "No video URL in response" }, { status: 500 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      jobId: Date.now().toString(),
-      videoUrl,
-    });
   } catch (error) {
     console.error("API Error:", error);
-    return NextResponse.json({ error: "Failed to process video", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Failed to process request", 
+      details: error instanceof Error ? error.message : String(error) 
+    }, { status: 500 });
   }
 }
 
