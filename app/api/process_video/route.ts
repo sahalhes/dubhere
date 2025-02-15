@@ -21,10 +21,10 @@ export async function POST(req: Request) {
     let client;
     let result;
 
-    // Try first endpoint
+    // Try first endpoint (artificialguybr/video-dubbing)
     try {
-      console.log("Trying Gradio Client: https://gradio.live/");
-      client = await Client.connect("https://0b5e96bf239e022c98.gradio.live/");
+      console.log("Trying Gradio Client: artificialguybr/video-dubbing");
+      client = await Client.connect("artificialguybr/video-dubbing");
       result = await client.predict("/process_video", {
         video: { video: blob, subtitles: null },
         target_language: language,
@@ -37,10 +37,10 @@ export async function POST(req: Request) {
         console.warn("First endpoint failed:", error);
       }
 
-      // Try second endpoint
+      // Try second endpoint (Google Colab Gradio)
       try {
-        console.log("Falling back to Gradio Client: artificialguybr/video-dubbing");
-        client = await Client.connect("artificialguybr/video-dubbing");
+        console.log("Falling back to Gradio Client: https://gradio.live/");
+        client = await Client.connect("https://0b5e96bf239e022c98.gradio.live/");
         result = await client.predict("/process_video", {
           video: { video: blob, subtitles: null },
           target_language: language,
@@ -67,7 +67,6 @@ export async function POST(req: Request) {
       jobId: Date.now().toString(),
       videoUrl,
     });
-
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json({ error: "Failed to process video" }, { status: 500 });
