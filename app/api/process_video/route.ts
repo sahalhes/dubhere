@@ -36,7 +36,10 @@ export async function POST(req: Request) {
         throw new Error("No response from video processing service");
       }
 
-      const videoUrl = (result.data as { video: { url: string } }[])[0]?.video?.url;
+      const videoData = Array.isArray(result.data) ? result.data[0] : null;
+      const videoUrl = videoData?.video?.url;
+      if (!videoUrl) throw new Error("No video URL in response");
+
 
       if (!videoUrl) {
         throw new Error("No video URL in response");
