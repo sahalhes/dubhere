@@ -38,22 +38,6 @@ export async function POST(req: Request) {
       }
 
       // Try second endpoint (Google Colab Gradio)
-      try {
-        console.log("Falling back to Gradio Client: https://gradio.live/");
-        client = await Client.connect("https://0b5e96bf239e022c98.gradio.live/");
-        result = await client.predict("/process_video", {
-          video: { video: blob, subtitles: null },
-          target_language: language,
-          use_wav2lip: false,
-        });
-      } catch (fallbackError) {
-        if (fallbackError instanceof Error) {
-          console.error("Both endpoints failed:", fallbackError.message);
-        } else {
-          console.error("Both endpoints failed:", fallbackError);
-        }
-        return NextResponse.json({ error: "Failed to process video from both sources" }, { status: 500 });
-      }
     }
 
     if (!result) {
